@@ -21,14 +21,14 @@ class SeedPlotSimluation:
                   n_plants: int = 20,
                   distribution: str = 'uniform',
                   distribution_params: dict = None,
-                  detection_params: float = 0.2):
+                  detection_radii: float = 0.2):
         
         self.width = width
         self.height = height
         self.n_plants = n_plants
         self.distribution = distribution
         self.distribution_params = distribution_params or {}
-        self.detection_params = detection_params
+        self.detection_raddi = detection_radii
 
         self.plants = self._generate_plants()
         self.plant_buffers = self._generate_plant_buffers()
@@ -61,6 +61,8 @@ class SeedPlotSimluation:
         """
         Generate plant locations based on a Isotropic Gaussian Cluster distribution
         https://scikit-learn.org/1.5/modules/generated/sklearn.datasets.make_blobs.html
+
+        Need to add n_clusters and n_cluster_std to distribution_params
         """
         n_clusters = self.distribution_params.get('n_clusters', 3)
         n_cluster_std = self.distribution_params.get('n_cluster_std', 1.0)
@@ -82,6 +84,8 @@ class SeedPlotSimluation:
 
         "direction" is if the gradient goes from left-right or up-down
         "steepness" is how heavily points far from their "direction" are punished
+
+        Need to add "direction" and "steepness" to distribution_params
         """
         ## Copied directly from stackoverflow, may need to find a better solution
         direction = self.distribution_params.get('direction', 'x')
@@ -104,7 +108,14 @@ class SeedPlotSimluation:
         return points
     
     def _generate_plant_buffers(self):
-        return
+        """
+        Generate buffers around plant points to symbolize the maximum distance a plant could be hypothetically detected by an observer
+        
+        In future would like to implement variable buffer sizes
+        """
+        radius = self.detection_raddi
+        return [point.buffer(radius) for point in self.plants]
+        
     
     def _create_plot_plants(self):
         x_points = [point.x for point in self.plants]
