@@ -74,7 +74,34 @@ class SeedPlotSimluation:
         return [Point(x, y) for x, y in zip(x_coordinates, y_coordinates)]
     
     def _generate_gradient_plants(self) -> List[Point]:
-        return
+        """
+        Generate plants with density following a probability gradient.
+        
+        Attempts to place points in random points and determines if they are placed
+        with a probability weight influenced by "direction" and "steepness"
+
+        "direction" is if the gradient goes from left-right or up-down
+        "steepness" is how heavily points far from their "direction" are punished
+        """
+        ## Copied directly from stackoverflow, may need to find a better solution
+        direction = self.distribution_params.get('direction', 'x')
+        steepness = self.distribution_params.get('steepness', 1.0)
+        
+        points = []
+        while len(points) < self.n_plants:
+            x = np.random.uniform(0, self.width)
+            y = np.random.uniform(0, self.height)
+            
+            if direction == 'x':
+                prob = np.exp(-steepness * x / self.width)
+            elif direction == 'y':
+                prob = np.exp(-steepness * y / self.height)
+            else:
+                prob = np.exp(-steepness * (x + y) / (self.width + self.height))
+                
+            if np.random.random() < prob:
+                points.append(Point(x, y))
+        return points
     
     def _generate_plant_buffers(self):
         return
@@ -92,4 +119,7 @@ class SeedPlotSimluation:
         plt.axvline(0, color='gray', linewidth=0.5)  # Optional: Add vertical line
         plt.grid(True)  # Optional: Add grid
         plt.legend()
+        plt.xlim(0, self.width)
+        plt.ylim(0, self.height)
+        
         plt.show()
