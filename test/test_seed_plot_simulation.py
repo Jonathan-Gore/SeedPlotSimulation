@@ -75,25 +75,3 @@ def test_generate_clustered_plants():
     assert isinstance(sim.plants[0], Point)
     assert isinstance(x_points[0], float)
     assert isinstance(y_points[0], float)
-
-
-## Not messing around with statistical tests for testing how clustered data is currently
-## Maybe in the future
-def test_generate_clustered_plants():
-    ## Data initializaiton
-    sim = SeedPlotSimluation(distribution = 'gradient')
-    x_points = [point.x for point in sim.plants]
-    y_points = [point.y for point in sim.plants]
-
-    ## Confirming class parameters are maintained correctly
-    assert sim.width == 10.0
-    assert sim.height == 10.0
-    assert sim.n_plants == 20
-    assert sim.distribution == 'gradient'
-    assert sim.distribution_params == {}
-    assert sim.detection_params == 0.2
-
-    assert isinstance(sim.plants, list)
-    assert isinstance(sim.plants[0], Point)
-    assert isinstance(x_points[0], float)
-    assert isinstance(y_points[0], float)
