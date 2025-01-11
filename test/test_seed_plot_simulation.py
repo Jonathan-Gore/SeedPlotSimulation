@@ -1,6 +1,6 @@
 import pytest
 from src.SeedPlotSimulation import SeedPlotSimluation
-from shapely.geometry import Point
+from shapely.geometry import Point, Polygon
 from typing import List
 from scipy.stats import ks_1samp, uniform
 import numpy as np
@@ -24,6 +24,7 @@ def test_initialization_defaults():
     assert isinstance(sim.plants[0], Point)
     assert isinstance(x_points[0], float)
     assert isinstance(y_points[0], float)
+    assert isinstance(sim.plant_buffers[0], Polygon)
 
 
 def test_generate_uniform_plants():
