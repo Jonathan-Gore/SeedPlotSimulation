@@ -18,7 +18,7 @@ def test_initialization_defaults():
     assert sim.n_plants == 20
     assert sim.distribution == 'uniform'
     assert sim.distribution_params == {}
-    assert sim.detection_params == 0.2
+    assert sim.detection_radii == 0.2
 
     assert isinstance(sim.plants, list)
     assert isinstance(sim.plants[0], Point)
@@ -58,7 +58,7 @@ def test_generate_uniform_plants():
     assert sim.n_plants == 20
     assert sim.distribution == 'uniform'
     assert sim.distribution_params == {}
-    assert sim.detection_params == 0.2
+    assert sim.detection_radii == 0.2
 
     assert isinstance(sim.plants, list)
     assert isinstance(sim.plants[0], Point)
@@ -83,7 +83,7 @@ def test_generate_clustered_plants():
     assert sim.n_plants == 20
     assert sim.distribution == 'clustered'
     assert sim.distribution_params == {}
-    assert sim.detection_params == 0.2
+    assert sim.detection_radii == 0.2
 
     assert isinstance(sim.plants, list)
     assert isinstance(sim.plants[0], Point)
@@ -107,7 +107,7 @@ def test_generate_gradient_plants():
     assert sim.n_plants == 20
     assert sim.distribution == 'gradient'
     assert sim.distribution_params == {}
-    assert sim.detection_params == 0.2
+    assert sim.detection_radii == 0.2
 
     assert isinstance(sim.plants, list)
     assert isinstance(sim.plants[0], Point)

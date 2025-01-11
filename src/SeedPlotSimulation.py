@@ -28,7 +28,7 @@ class SeedPlotSimluation:
         self.n_plants = n_plants
         self.distribution = distribution
         self.distribution_params = distribution_params or {}
-        self.detection_raddi = detection_radii
+        self.detection_radii = detection_radii
 
         self.plants = self._generate_plants()
         self.plant_buffers = self._generate_plant_buffers()
@@ -113,7 +113,7 @@ class SeedPlotSimluation:
         
         In future would like to implement variable buffer sizes
         """
-        radius = self.detection_raddi
+        radius = self.detection_radii
         return [point.buffer(radius) for point in self.plants]
         
     
