@@ -101,8 +101,9 @@ class SeedPlotSimluation:
                                           random_state=n_cluster_random_state,
                                           center_box=(0, self.width))
         
-        x_coordinates = [float(x[0]) for x in cluster_data]
-        y_coordinates = [float(y[1]) for y in cluster_data]
+        # Clamps values outside of plot boundaries to boundary value (due to std during cluster generation)
+        x_coordinates = np.clip([float(x[0]) for x in cluster_data], 0, self.width)
+        y_coordinates = np.clip([float(y[1]) for y in cluster_data], 0, self.height)
 
         return [Point(x, y) for x, y in zip(x_coordinates, y_coordinates)]
     
@@ -187,23 +188,31 @@ class SeedPlotSimluation:
             ValueError: If spacing is less than or equal to zero.
         """
         n_traverses = max(2, int(np.ceil(self.height / spacing)) + 1)
+        points = []
+
+        for i in range(n_traverses):
+            y = i * spacing
+            if y <= self.height:
+                points.extend([(0, y), self.width, y])
+        
+        return LineString(points)
 
 
     
-    def _create_plot_plants(self):
-        x_points = [point.x for point in self.plants]
-        y_points = [point.y for point in self.plants]
-
-        plt.figure(figsize=(self.width, self.height))  # Optional: Set figure size
-        plt.scatter(x_points, y_points, c='red', label='Points')  # Scatter plot
-        plt.title("Scatter Plot of Shapely Points")
-        plt.xlabel("X Coordinate")
-        plt.ylabel("Y Coordinate")
-        plt.axhline(0, color='gray', linewidth=0.5)  # Optional: Add horizontal line
-        plt.axvline(0, color='gray', linewidth=0.5)  # Optional: Add vertical line
-        plt.grid(True)  # Optional: Add grid
-        plt.legend()
-        plt.xlim(0, self.width)
-        plt.ylim(0, self.height)
+    def _create_initial_conditions_plot(self,
+                     _include_buffers: bool = True,
+                     _include_paths: bool = True):
         
+        fig, ax = plt.subplots(figsize=(self.width, self.height))
+        ax.set_xlim(0, self.width)
+        ax.set_ylim(0, self.height)
+
+        # Plot Plant + Buffers (zip together)
+        for plant, buffer in zip(self.plants, self.plant_buffers):
+            ax.plot(plant.x, plant.y, 'g.', markersize = 8)
+            x, y = buffer.exterior.xy
+            ax.plot(x, y, 'g--', alpha = 0.3)
+
+        #if _include_paths:
+
         plt.show()
