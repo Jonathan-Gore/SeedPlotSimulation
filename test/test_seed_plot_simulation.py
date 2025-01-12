@@ -72,9 +72,9 @@ def test_generate_uniform_plants():
 
 ## Not messing around with statistical tests for testing how clustered data is currently
 ## Maybe in the future
-def test_generate_clustered_plants():
+def test_generate_cluster_plants():
     ## Data initializaiton
-    sim = SeedPlotSimluation(distribution = 'clustered')
+    sim = SeedPlotSimluation(distribution = 'cluster')
     x_points = [point.x for point in sim.plants]
     y_points = [point.y for point in sim.plants]
 
@@ -82,7 +82,7 @@ def test_generate_clustered_plants():
     assert sim.width == 10.0
     assert sim.height == 10.0
     assert sim.n_plants == 20
-    assert sim.distribution == 'clustered'
+    assert sim.distribution == 'cluster'
     assert sim.distribution_params == {}
     assert sim.detection_radii == 0.2
 

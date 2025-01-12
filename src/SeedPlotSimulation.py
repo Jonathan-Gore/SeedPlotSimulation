@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from shapely.geometry import Point, LineString
+from shapely.geometry import Point, LineString, Polygon
 from shapely.ops import unary_union
 import pandas as pd
 from typing import List, Tuple, Optional
@@ -39,7 +39,7 @@ class SeedPlotSimluation:
         """
         distribution_methods = {
             'uniform': self._generate_uniform_plants,
-            'clustered': self._generate_clustered_plants,
+            'cluster': self._generate_cluster_plants,
             'gradient': self._generate_gradient_plants
         }
 
@@ -51,24 +51,55 @@ class SeedPlotSimluation:
     def _generate_uniform_plants(self) -> List[Point]:
         """
         Generate plant locations based on a uniform distribution
+
+        Args:    
+
+        Returns:
+            List[Point]: A list of geometric Points representing plants in a sample grid.
+
+        Raises:
+
+        Attributes:
+            width (float): X-dimension of survey grid - defaults to 10.
+            height (float): Y dimension of survey grid - defaults to 10.
+            n_plants (integer): Number of plant points to generate - defaults to 20.
         """
         x_coordinates = np.random.uniform(0, self.width, self.n_plants)
         y_coordinates = np.random.uniform(0, self.height, self.n_plants)
 
         return [Point(x, y) for x, y in zip(x_coordinates, y_coordinates)]
     
-    def _generate_clustered_plants(self) -> List[Point]:
+    def _generate_cluster_plants(self) -> List[Point]:
         """
         Generate plant locations based on a Isotropic Gaussian Cluster distribution
         https://scikit-learn.org/1.5/modules/generated/sklearn.datasets.make_blobs.html
+        
+        
+        Args:    
 
-        Need to add n_clusters and n_cluster_std to distribution_params
+        Returns:
+            List[Point]: A list of geometric Points representing plants in a sample grid.
+
+        Raises:
+
+        Attributes:
+            width (float): X-dimension of survey grid - defaults to 10.
+            height (float): Y dimension of survey grid - defaults to 10.
+            n_plants (integer): Number of plant points to generate - defaults to 20.
+            n_clusters (integer): Number of clusters to generate - defaults to 3.
+            n_cluster_std (float): Standard deviation of each cluster - defaults to 1.0.
+            n_cluster_random_stat (integer): Random state for cluster initialization - defaults to range of 0->>20000000
         """
         n_clusters = self.distribution_params.get('n_clusters', 3)
         n_cluster_std = self.distribution_params.get('n_cluster_std', 1.0)
+        n_cluster_random_state = self.distribution_params.get('n_cluster_random_state', np.random.randint(0, 20000000))
 
-
-        cluster_data, labels = make_blobs(n_samples=100, cluster_std=n_cluster_std, centers=n_clusters, n_features=2, random_state=1)
+        cluster_data, labels = make_blobs(n_samples=self.n_plants,
+                                          cluster_std=n_cluster_std,
+                                          centers=n_clusters,
+                                          n_features=2,
+                                          random_state=n_cluster_random_state,
+                                          center_box=(0, self.width))
         
         x_coordinates = [float(x[0]) for x in cluster_data]
         y_coordinates = [float(y[1]) for y in cluster_data]
@@ -82,10 +113,20 @@ class SeedPlotSimluation:
         Attempts to place points in random points and determines if they are placed
         with a probability weight influenced by "direction" and "steepness"
 
-        "direction" is if the gradient goes from left-right or up-down
-        "steepness" is how heavily points far from their "direction" are punished
+        
+        Args:    
 
-        Need to add "direction" and "steepness" to distribution_params
+        Returns:
+            List[Point]: A list of geometric Points representing plants in a sample grid.
+
+        Raises:
+
+        Attributes:
+            width (float): X-dimension of survey grid - defaults to 10.
+            height (float): Y dimension of survey grid - defaults to 10.
+            n_plants (integer): Number of plant points to generate - defaults to 20.
+            direction (string): A gradient direction that can go from left->right or up->down - defaults to 'x'.
+            steepness (float): Parameter for how heavily points are punished for being farther away from their "direction" - defaults to 1.0.
         """
         ## Copied directly from stackoverflow, may need to find a better solution
         direction = self.distribution_params.get('direction', 'x')
@@ -107,15 +148,47 @@ class SeedPlotSimluation:
                 points.append(Point(x, y))
         return points
     
-    def _generate_plant_buffers(self):
+    def _generate_plant_buffers(self) -> List[Polygon]:
         """
-        Generate buffers around plant points to symbolize the maximum distance a plant could be hypothetically detected by an observer
+        Generate buffers around plant points to symbolize the maximum distance a plant could be hypothetically
+        detected by an observer.
         
         In future would like to implement variable buffer sizes
+
+        
+        Args:    
+
+        Returns:
+            List[Polygon]: A list of radial buffers around plant points.
+
+        Raises:
+
+        Attributes:
+            detection_radii (float): The radius around a plant Point that an observer can detect a plant at.
+            plants (List[Point]): List of plant points.
         """
         radius = self.detection_radii
         return [point.buffer(radius) for point in self.plants]
+    
+    def _generate_parallel_path(self, spacing: float = 2.0) -> LineString:
+        """Generate parallel line search path.
+
+        Creates a back-and-forth path pattern covering a rectangular area,
+        with parallel horizontal lines spaced at the specified interval.
+
         
+        Args:
+            spacing (float, optional): Distance between parallel lines. Defaults to 2.0.
+
+        Returns:
+            LineString: A geometric line representing the complete path.
+
+        Raises:
+            ValueError: If spacing is less than or equal to zero.
+        """
+        n_traverses = max(2, int(np.ceil(self.height / spacing)) + 1)
+
+
     
     def _create_plot_plants(self):
         x_points = [point.x for point in self.plants]
